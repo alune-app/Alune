@@ -1,0 +1,200 @@
+{
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.38039,0.33333,0.96078,1.00000"
+  },
+  "groups" : [
+    {
+      "blur-material" : 0.5,
+      "hidden" : true,
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "playstation.logo.png",
+          "name" : "playstation.logo"
+        }
+      ],
+      "lighting" : "individual",
+      "position" : {
+        "scale" : 0.9,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "blur-material" : 0.5,
+      "hidden" : false,
+      "layers" : [
+        {
+          "image-name" : "dpad.fill.png",
+          "name" : "dpad.fill",
+          "position" : {
+            "scale" : 1.1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "position" : {
+        "scale" : 1,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "blend-mode" : "darken",
+      "blur-material" : null,
+      "layers" : [
+        {
+          "image-name" : "opticaldisc.fill.png",
+          "name" : "opticaldisc.fill",
+          "position" : {
+            "scale" : 1.9999999999999993,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "hidden" : true,
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "square.circle.fill.png",
+          "name" : "square.circle.fill",
+          "position" : {
+            "scale" : 0.43,
+            "translation-in-points" : [
+              -250,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "hidden" : true,
+      "layers" : [
+        {
+          "image-name" : "xmark.circle.fill.png",
+          "name" : "xmark.circle.fill",
+          "position" : {
+            "scale" : 0.43,
+            "translation-in-points" : [
+              0,
+              250
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "hidden" : true,
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "triangle.circle.fill.png",
+          "name" : "triangle.circle.fill",
+          "position" : {
+            "scale" : 0.43,
+            "translation-in-points" : [
+              0,
+              -250
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "hidden" : true,
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "circle.circle.fill.png",
+          "name" : "circle.circle.fill",
+          "position" : {
+            "scale" : 0.43,
+            "translation-in-points" : [
+              250,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
