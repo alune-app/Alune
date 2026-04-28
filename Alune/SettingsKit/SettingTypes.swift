@@ -21,17 +21,19 @@ public class AnyHashableSendable : Hashable, @unchecked Sendable {
 }
 
 public class BaseSetting : AnyHashableSendable, @unchecked Sendable {
-    public let key, title: String
+    public let key, section, title: String
     public var details: String? = nil,
                secondaryTitle: String? = nil
     public var delegate: SettingDelegate? = nil
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 secondaryTitle: String? = nil,
                 delegate: (any SettingDelegate)? = nil) {
         self.key = key
+        self.section = section
         self.title = title
         self.details = details
         self.secondaryTitle = secondaryTitle
@@ -53,6 +55,7 @@ public class BoolSetting : BaseSetting, @unchecked Sendable {
     public var isEnabled, value: Bool
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 secondaryTitle: String? = nil,
@@ -62,6 +65,7 @@ public class BoolSetting : BaseSetting, @unchecked Sendable {
         self.isEnabled = isEnabled
         self.value = value
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    secondaryTitle: secondaryTitle,
@@ -79,6 +83,7 @@ public class InputNumberSetting : BaseSetting, @unchecked Sendable {
     public var value: Double
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 secondaryTitle: String? = nil,
@@ -92,6 +97,7 @@ public class InputNumberSetting : BaseSetting, @unchecked Sendable {
         self.isEnabled = isEnabled
         self.value = value
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    secondaryTitle: secondaryTitle,
@@ -108,6 +114,7 @@ public class InputStringSetting : BaseSetting, @unchecked Sendable {
     public let action: () -> Void
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 placeholder: String? = nil,
@@ -118,6 +125,7 @@ public class InputStringSetting : BaseSetting, @unchecked Sendable {
         self.value = value
         self.action = action
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    delegate: delegate)
@@ -134,6 +142,7 @@ public class SegmentedSetting : BaseSetting, @unchecked Sendable {
     public var action: (UIViewController) -> Void
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 values: [String : Any],
@@ -144,6 +153,7 @@ public class SegmentedSetting : BaseSetting, @unchecked Sendable {
         self.selectedValue = selectedValue
         self.action = action
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    delegate: delegate)
@@ -160,6 +170,7 @@ public class SelectionSetting : BaseSetting, @unchecked Sendable {
     public var action: () -> Void
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 secondaryTitle: String? = nil,
@@ -171,6 +182,7 @@ public class SelectionSetting : BaseSetting, @unchecked Sendable {
         self.selectedValue = selectedValue
         self.action = action
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    secondaryTitle: secondaryTitle,
@@ -188,6 +200,7 @@ public class SliderSetting : BaseSetting, @unchecked Sendable {
     public var value: Double
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 minImage: UIImage? = nil,
@@ -202,6 +215,7 @@ public class SliderSetting : BaseSetting, @unchecked Sendable {
         self.max = max
         self.value = value
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    delegate: delegate)
@@ -217,6 +231,7 @@ public class StepperSetting : BaseSetting, @unchecked Sendable {
     public var value: Double
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 min: Double,
@@ -227,6 +242,7 @@ public class StepperSetting : BaseSetting, @unchecked Sendable {
         self.max = max
         self.value = value
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    delegate: delegate)
@@ -238,6 +254,7 @@ public class TapSetting : BaseSetting, @unchecked Sendable {
     public var handler: (UIViewController) -> Void
     
     public init(key: String,
+                section: String,
                 title: String,
                 details: String? = nil,
                 color: UIColor = .systemBlue,
@@ -246,6 +263,7 @@ public class TapSetting : BaseSetting, @unchecked Sendable {
         self.color = color
         self.handler = handler
         super.init(key: key,
+                   section: section,
                    title: title,
                    details: details,
                    delegate: delegate)

@@ -23,13 +23,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
         window.rootViewController = TabController(bridgeSwift: bridgeSwift)
-        window.tintColor = .systemBlue
+        window.tintColor = .systemIndigo
         window.makeKeyAndVisible()
         
-        configureDefaultUserDefaults()
         extractAndCopyResourcesFolder()
         
         bridgeSwift.initializeRenderingView()
+        
+        if let documentDirectoryURL: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let biosDirectoryURL: URL = documentDirectoryURL.appending(component: "bios")
+            do {
+                let contents: [URL] = try FileManager.default.contentsOfDirectory(at: biosDirectoryURL,
+                                                                                  includingPropertiesForKeys: nil,
+                                                                                  options: .skipsHiddenFiles)
+                let binFileURLs: [URL] = contents.filter { content in content.pathExtension.lowercased() == "bin" }
+                if let binFileURL: URL = binFileURLs.first {
+                    bridgeSwift.insert(bios: binFileURL)
+                }
+            } catch {
+                print(#file, #function, #line, error, error.localizedDescription)
+            }
+            
+            
+            let isosDirectoryURL: URL = documentDirectoryURL.appending(component: "isos")
+            if !FileManager.default.fileExists(atPath: isosDirectoryURL.path) {
+                do {
+                    try FileManager.default.createDirectory(at: isosDirectoryURL, withIntermediateDirectories: false)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
@@ -44,45 +68,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         bridgeSwift.pause()
-    }
-    
-    fileprivate func configureDefaultUserDefaults() {
-        let defaults: [String : Any] = [
-            // CPU
-            "extraMemory" : false,
-            "coreType" : 0,
-            "useARM64Dynarec" : false,
-            "extraSparseMemory" : true,
-            
-            // CPU Recompiler
-            "enableEE" : false,
-            "enableIOP" : false,
-            "enableEECache" : false,
-            "enableVU0" : false,
-            "enableVU1" : false,
-            "enableFastMem" : true,
-            
-            // GS
-            "enableVSync" : false,
-            "disableMailboxPresentation" : false,
-            "vsyncQueueSize" : 2,
-            "aspectRatio" : 2,
-            
-            // Speed Hacks
-            "fastCDVD" : false,
-            "waitLoop" : false,
-            "vuFlagHack" : false,
-            "vuThread" : false,
-            "vu1Instant" : false,
-            "mtvu" : false
-            
-        ]
-        
-        defaults.forEach { key, value in
-            if UserDefaults.standard.value(forKey: "alune.v1.0.1.\(key)") == nil {
-                UserDefaults.standard.set(value, forKey: "alune.v1.0.1.\(key)")
-            }
-        }
     }
     
     fileprivate func extractAndCopyResourcesFolder() {

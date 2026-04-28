@@ -52,12 +52,15 @@
 #include <mutex>
 #include <optional>
 #include <sys/stat.h> // For mkdir
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <string>
+#include <vector>
 #include <thread>
 
 #include "common/Darwin/DarwinMisc.h"
 
 #include "Host.h"
-
 
 #include <algorithm>
 #include <atomic>
@@ -116,16 +119,19 @@ bool unzip_file(const char* zipPath, const char* destination) {
 
 NSString *serial(const char* isoPath) {
     Error error;
-    auto CDVD = &CDVDapi_Iso;
+    std::string* serial = new std::string("");
+    u32* crc{};
+    
+    CDVD = &CDVDapi_Iso;
     CDVD->open(isoPath, &error);
+    cdvdGetDiscInfo(serial, nullptr, nullptr, crc, nullptr);
+    DoCDVDclose();
     
-    auto type = DoCDVDdetectDiskType();
-    
-    std::string serial{}, elf_path{}, version{};
-    uint32_t crc{};
-    CDVDDiscType disc_type{CDVDDiscType::PS2Disc};
-    cdvdGetDiscInfo(&serial, &elf_path, &version, &crc, &disc_type);
-    return [NSString stringWithCString:serial.c_str() encoding:NSUTF8StringEncoding];
+    NSLog(@"%@", [NSString stringWithCString:serial->c_str() encoding:NSUTF8StringEncoding]);
+    if (serial == nullptr)
+        return @"";
+    else
+        return [NSString stringWithCString:serial->c_str() encoding:NSUTF8StringEncoding];
 }
 
 static INISettingsInterface* settings;
@@ -138,7 +144,7 @@ extern void GSResizeDisplayWindow(int width, int height, float scale);
 -(void) layoutSubviews {
     [super layoutSubviews];
     
-    CGFloat nativeScale = self.contentScaleFactor;
+    CGFloat nativeScale = 1; //self.contentScaleFactor;
     CGFloat width = self.bounds.size.width;
     CGFloat height = self.bounds.size.height;
     
@@ -186,15 +192,15 @@ AluneGameView *imp_renderingView;
         EmuFolders::Videos = (documentDirectoryPath / "videos").string();
         
         if (EmuFolders::EnsureFoldersExist())
-            NSLog(@"all folders created successfully");
+            NSLog(@"%@", documentDirectoryURL.path);
         
         std::filesystem::path resourcesPath{EmuFolders::Resources};
         ImGuiManager::SetFontPathAndRange((resourcesPath / "fonts" / "Roboto-Regular.ttf").string(), {});
         
-        freopen((logsPath / "log.txt").c_str(), "w", stderr);
-        dup2(STDERR_FILENO, STDOUT_FILENO);
-        
-        fflush(stderr);
+        // freopen((logsPath / "log.txt").c_str(), "w", stderr);
+        // dup2(STDERR_FILENO, STDOUT_FILENO);
+        //
+        // fflush(stderr);
         
         Log::SetConsoleOutputLevel(LOGLEVEL::LOGLEVEL_INFO);
         Log::SetDebugOutputLevel(LOGLEVEL::LOGLEVEL_INFO);
@@ -205,42 +211,39 @@ AluneGameView *imp_renderingView;
         if (!settings->Load()) {
             VMManager::SetDefaultSettings(*settings, true, true, true, true, true);
             
-            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+            settings->SetBoolValue("EmuCore/CPU", "ExtraMemory", true);
+            settings->SetIntValue("EmuCore/CPU", "CoreType", 0);
+            settings->SetBoolValue("EmuCore/CPU", "UseArm64Dynarec", false);
+            // settings->SetBoolValue("EmuCore/CPU", "EnableSparseMemory", true);
             
-            NSString *(^appendedKey)(NSString *) = ^NSString*(NSString *key) { return [@"alune.v1.0.1." stringByAppendingString:key]; };
+            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEE", false);
+            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableIOP", false);
+            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEECache", false);
+            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU0", false);
+            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU1", false);
+            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableFastmem", true);
             
-            bool (^boolean)(NSString *) = ^bool(NSString *key) { return [defaults boolForKey:key]; };
-            int (^integer)(NSString *) = ^int(NSString *key) { return [[NSNumber numberWithDouble:[defaults doubleForKey:key]] intValue]; };
+            settings->SetBoolValue("EmuCore/GS", "VsyncEnable", false);
+            settings->SetBoolValue("EmuCore/GS", "DisableMailboxPresentation", false);
+            settings->SetIntValue("EmuCore/GS", "VsyncQueueSize", 2);
+            settings->SetStringValue("EmuCore/GS", "AspectRatio", "4:3");
             
-            settings->SetBoolValue("EmuCore/CPU", "ExtraMemory", boolean(appendedKey(@"extraMemory")));
-            settings->SetIntValue("EmuCore/CPU", "CoreType", integer(appendedKey(@"coreType")));
-            settings->SetBoolValue("EmuCore/CPU", "UseArm64Dynarec", boolean(appendedKey(@"useARM64Dynarec")));
-            settings->SetBoolValue("EmuCore/CPU", "EnableSparseMemory", boolean(appendedKey(@"enableSparseMemory")));
-            
-            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEE", boolean(appendedKey(@"enableEE")));
-            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableIOP", boolean(appendedKey(@"enableIOP")));
-            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEECache", boolean(appendedKey(@"enableEECache")));
-            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU0", boolean(appendedKey(@"enableVU0")));
-            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU1", boolean(appendedKey(@"enableVU1")));
-            settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableFastmem", boolean(appendedKey(@"enableFastMem")));
-            
-            settings->SetBoolValue("EmuCore/GS", "VsyncEnable", boolean(appendedKey(@"enableVSync")));
-            settings->SetBoolValue("EmuCore/GS", "DisableMailboxPresentation", boolean(appendedKey(@"disableMailboxPresentation")));
-            settings->SetIntValue("EmuCore/GS", "VsyncQueueSize", integer(appendedKey(@"vsyncQueueSize")));
-            settings->SetIntValue("EmuCore/GS", "AspectRatio", integer(appendedKey(@"aspectRatio")));
-            
-            settings->SetBoolValue("EmuCore/Speedhacks", "fastCDVD", boolean(appendedKey(@"fastCDVD")));
-            settings->SetBoolValue("EmuCore/Speedhacks", "WaitLoop", boolean(appendedKey(@"waitLoop")));
-            settings->SetBoolValue("EmuCore/Speedhacks", "vuFlagHack", boolean(appendedKey(@"vuFlagHack")));
-            settings->SetBoolValue("EmuCore/Speedhacks", "vuThread", boolean(appendedKey(@"vuThread")));
-            settings->SetBoolValue("EmuCore/Speedhacks", "vu1Instant", boolean(appendedKey(@"vu1Instant")));
-            settings->SetBoolValue("EmuCore/Speedhacks", "MTVU", boolean(appendedKey(@"mtvu")));
+            settings->SetIntValue("EmuCore/Speedhacks", "EECycleRate", 0);
+            settings->SetIntValue("EmuCore/Speedhacks", "EECycleSkip", 0);
+            settings->SetBoolValue("EmuCore/Speedhacks", "fastCDVD", false);
+            settings->SetBoolValue("EmuCore/Speedhacks", "WaitLoop", false);
+            settings->SetBoolValue("EmuCore/Speedhacks", "vuFlagHack", false);
+            settings->SetBoolValue("EmuCore/Speedhacks", "vuThread", false);
+            settings->SetBoolValue("EmuCore/Speedhacks", "vu1Instant", false);
+            settings->SetBoolValue("EmuCore/Speedhacks", "MTVU", false);
             
             // Force these for now
             settings->SetIntValue("EmuCore/GS", "Renderer", static_cast<int>(GSRendererType::Metal));
+            settings->SetStringValue("EmuCore/GS", "CustomDriverPath", "@rpath/MoltenVK.framework/MoltenVK");
             settings->SetIntValue("EmuCore/GS", "OsdMessagesPos", 0);
             settings->SetIntValue("EmuCore/GS", "OsdPerformancePos", 0);
             settings->SetStringValue("SPU2/Output", "Backend", "SDL");
+            settings->SetBoolValue("InputSources", "SDL", false);
             
             settings->SetStringValue("Folders", "Bios", "bios");
             settings->SetStringValue("Folders", "Cache", "caches");
@@ -270,7 +273,6 @@ AluneGameView *imp_renderingView;
         VMManager::ApplySettings();
         
         DarwinMisc::SetCrashLogFD(STDERR_FILENO);
-        
     } return self;
 }
 
@@ -334,45 +336,137 @@ AluneGameView *imp_renderingView;
 }
 
 // MARK: Settings
--(void) updateSettings {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+-(BOOL) getBoolSetting:(NSString *)section key:(NSString *)key {
+    bool value{};
+    settings->GetBoolValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding], &value);
+    return value;
+}
+
+-(void) setBoolSetting:(NSString *)section key:(NSString *)key value:(BOOL)value {
+    settings->SetBoolValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding], value);
+    settings->Save();
+}
+
+-(double) getDoubleSetting:(NSString *)section key:(NSString *)key {
+    double value{};
+    settings->GetDoubleValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding], &value);
+    return value;
+}
+
+-(void) setDoubleSetting:(NSString *)section key:(NSString *)key value:(double)value {
+    settings->SetDoubleValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding], value);
+    settings->Save();
+}
+
+-(NSInteger) getIntSetting:(NSString *)section key:(NSString *)key {
+    int value{};
+    settings->GetIntValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding], &value);
+    return [[NSNumber numberWithInt:value] integerValue];
+}
+
+-(void) setIntSetting:(NSString *)section key:(NSString *)key value:(NSInteger)value {
+    settings->SetIntValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding],
+                          [[NSNumber numberWithInteger:value] intValue]);
+    settings->Save();
+}
+
+-(NSString *) getStringSetting:(NSString *)section key:(NSString *)key {
+    std::string value{};
+    settings->GetStringValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding], &value);
+    return [NSString stringWithCString:value.c_str() encoding:NSUTF8StringEncoding];
+}
+
+-(void) setStringSetting:(NSString *)section key:(NSString *)key value:(NSString *)value {
+    settings->SetStringValue([section cStringUsingEncoding:NSUTF8StringEncoding], [key cStringUsingEncoding:NSUTF8StringEncoding],
+                             [value cStringUsingEncoding:NSUTF8StringEncoding]);
+    settings->Save();
+}
+
+-(void) resetSettings {
+    NSURL *documentDirectoryURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] firstObject];
     
-    NSString *(^appendedKey)(NSString *) = ^NSString*(NSString *key) { return [@"alune.v1.0.1." stringByAppendingString:key]; };
+    std::string documentDirectoryString{[documentDirectoryURL.path UTF8String]};
+    std::filesystem::path documentDirectoryPath{documentDirectoryString};
     
-    bool (^boolean)(NSString *) = ^bool(NSString *key) { return [defaults boolForKey:key]; };
-    int (^integer)(NSString *) = ^int(NSString *key) { return [[NSNumber numberWithDouble:[defaults doubleForKey:key]] intValue]; };
+    std::filesystem::path logsPath{documentDirectoryPath / "logs"};
     
-    NSString *aspectRatio = [@[@"Stretch", @"Auto 4:3/3:2", @"4:3", @"16:9", @"10:7"] objectAtIndex:integer(appendedKey(@"aspectRatio"))];
+    EmuFolders::AppRoot = documentDirectoryPath.string();
+    EmuFolders::Bios = (documentDirectoryPath / "bios").string();
+    EmuFolders::Cache = (documentDirectoryPath / "caches").string();
+    EmuFolders::Cheats = (documentDirectoryPath / "cheats").string();
+    EmuFolders::Covers = (documentDirectoryPath / "covers").string();
+    EmuFolders::DataRoot = documentDirectoryPath.string();
+    EmuFolders::DebuggerLayouts = (documentDirectoryPath / "settings" / "debugger_layouts").string();
+    EmuFolders::DebuggerSettings = (documentDirectoryPath / "settings" / "debugger_settings").string();
+    EmuFolders::GameSettings = (documentDirectoryPath / "game_settings").string();
+    EmuFolders::InputProfiles = (documentDirectoryPath / "input_profiles").string();
+    EmuFolders::Logs = logsPath.string();
+    EmuFolders::MemoryCards = (documentDirectoryPath / "memory_cards").string();
+    EmuFolders::Patches = (documentDirectoryPath / "patches").string();
+    EmuFolders::Resources = (documentDirectoryPath / "resources").string();
+    EmuFolders::Savestates = (documentDirectoryPath / "save_states").string();
+    EmuFolders::Settings = (documentDirectoryPath / "settings").string();
+    EmuFolders::Snapshots = (documentDirectoryPath / "snapshots").string();
+    EmuFolders::Textures = (documentDirectoryPath / "textures").string();
+    EmuFolders::UserResources = (documentDirectoryPath / "user_resources").string();
+    EmuFolders::Videos = (documentDirectoryPath / "videos").string();
     
-    settings->SetBoolValue("EmuCore/CPU", "ExtraMemory", boolean(appendedKey(@"extraMemory")));
-    settings->SetIntValue("EmuCore/CPU", "CoreType", integer(appendedKey(@"coreType")));
-    settings->SetBoolValue("EmuCore/CPU", "UseArm64Dynarec", boolean(appendedKey(@"useARM64Dynarec")));
-    settings->SetBoolValue("EmuCore/CPU", "EnableSparseMemory", boolean(appendedKey(@"enableSparseMemory")));
+    if (EmuFolders::EnsureFoldersExist())
+        NSLog(@"all folders created successfully");
     
-    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEE", boolean(appendedKey(@"enableEE")));
-    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableIOP", boolean(appendedKey(@"enableIOP")));
-    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEECache", boolean(appendedKey(@"enableEECache")));
-    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU0", boolean(appendedKey(@"enableVU0")));
-    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU1", boolean(appendedKey(@"enableVU1")));
-    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableFastmem", boolean(appendedKey(@"enableFastMem")));
+    VMManager::SetDefaultSettings(*settings, true, true, true, true, true);
     
-    settings->SetBoolValue("EmuCore/GS", "VsyncEnable", boolean(appendedKey(@"enableVSync")));
-    settings->SetBoolValue("EmuCore/GS", "DisableMailboxPresentation", boolean(appendedKey(@"disableMailboxPresentation")));
-    settings->SetIntValue("EmuCore/GS", "VsyncQueueSize", integer(appendedKey(@"vsyncQueueSize")));
-    settings->SetStringValue("EmuCore/GS", "AspectRatio", [aspectRatio cStringUsingEncoding:NSUTF8StringEncoding]);
+    settings->SetBoolValue("EmuCore/CPU", "ExtraMemory", true);
+    settings->SetIntValue("EmuCore/CPU", "CoreType", 0);
+    settings->SetBoolValue("EmuCore/CPU", "UseArm64Dynarec", false);
+    // settings->SetBoolValue("EmuCore/CPU", "EnableSparseMemory", true);
     
-    settings->SetBoolValue("EmuCore/Speedhacks", "fastCDVD", boolean(appendedKey(@"fastCDVD")));
-    settings->SetBoolValue("EmuCore/Speedhacks", "WaitLoop", boolean(appendedKey(@"waitLoop")));
-    settings->SetBoolValue("EmuCore/Speedhacks", "vuFlagHack", boolean(appendedKey(@"vuFlagHack")));
-    settings->SetBoolValue("EmuCore/Speedhacks", "vuThread", boolean(appendedKey(@"vuThread")));
-    settings->SetBoolValue("EmuCore/Speedhacks", "vu1Instant", boolean(appendedKey(@"vu1Instant")));
-    settings->SetBoolValue("EmuCore/Speedhacks", "MTVU", boolean(appendedKey(@"mtvu")));
+    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEE", false);
+    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableIOP", false);
+    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableEECache", false);
+    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU0", false);
+    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableVU1", false);
+    settings->SetBoolValue("EmuCore/CPU/Recompiler", "EnableFastmem", true);
+    
+    settings->SetBoolValue("EmuCore/GS", "VsyncEnable", false);
+    settings->SetBoolValue("EmuCore/GS", "DisableMailboxPresentation", false);
+    settings->SetIntValue("EmuCore/GS", "VsyncQueueSize", 2);
+    settings->SetStringValue("EmuCore/GS", "AspectRatio", "4:3");
+    
+    settings->SetIntValue("EmuCore/Speedhacks", "EECycleRate", 0);
+    settings->SetIntValue("EmuCore/Speedhacks", "EECycleSkip", 0);
+    settings->SetBoolValue("EmuCore/Speedhacks", "fastCDVD", false);
+    settings->SetBoolValue("EmuCore/Speedhacks", "WaitLoop", false);
+    settings->SetBoolValue("EmuCore/Speedhacks", "vuFlagHack", false);
+    settings->SetBoolValue("EmuCore/Speedhacks", "vuThread", false);
+    settings->SetBoolValue("EmuCore/Speedhacks", "vu1Instant", false);
+    settings->SetBoolValue("EmuCore/Speedhacks", "MTVU", false);
     
     // Force these for now
     settings->SetIntValue("EmuCore/GS", "Renderer", static_cast<int>(GSRendererType::Metal));
+    settings->SetStringValue("EmuCore/GS", "CustomDriverPath", "@rpath/MoltenVK.framework/MoltenVK");
     settings->SetIntValue("EmuCore/GS", "OsdMessagesPos", 0);
     settings->SetIntValue("EmuCore/GS", "OsdPerformancePos", 0);
     settings->SetStringValue("SPU2/Output", "Backend", "SDL");
+    
+    settings->SetStringValue("Folders", "Bios", "bios");
+    settings->SetStringValue("Folders", "Cache", "caches");
+    settings->SetStringValue("Folders", "Cheats", "cheats");
+    settings->SetStringValue("Folders", "Covers", "covers");
+    settings->SetStringValue("Folders", "DebuggerLayouts", "debugger_layouts");
+    settings->SetStringValue("Folders", "DebuggerSettings", "debugger_settings");
+    settings->SetStringValue("Folders", "GameSettings", "game_settings");
+    settings->SetStringValue("Folders", "InputProfiles", "input_profiles");
+    settings->SetStringValue("Folders", "Logs", "logs");
+    settings->SetStringValue("Folders", "MemoryCards", "memory_cards");
+    settings->SetStringValue("Folders", "Patches", "patches");
+    settings->SetStringValue("Folders", "Resources", "resources");
+    settings->SetStringValue("Folders", "Savestates", "save_states");
+    settings->SetStringValue("Folders", "Settings", "settings");
+    settings->SetStringValue("Folders", "Snapshots", "snapshots");
+    settings->SetStringValue("Folders", "Textures", "textures");
+    settings->SetStringValue("Folders", "UserResources", "user_resources");
+    settings->SetStringValue("Folders", "Videos", "videos");
     
     settings->Save();
 }
@@ -391,15 +485,17 @@ AluneGameView *imp_renderingView;
     VMManager::Internal::LoadStartupSettings();
     VMManager::ApplySettings();
     
-#if defined TARGET_OS_IPHONE
-    //if (!DarwinMisc::IsJITAvailable())
-#if !defined TARGET_OS_SIMULATOR
-    DarwinMisc::Alune_FORCE_EE_INTERP = 1;
+    
+#if !TARGET_OS_SIMULATOR
+#if TARGET_OS_IPHONE
+    if (!DarwinMisc::IsJITAvailable())
+        DarwinMisc::Alune_FORCE_EE_INTERP = 1;
 #endif
 #endif
     
     if (SDL_Init(SDL_INIT_AUDIO) == false)
         NSLog(@"SDL_Init failed, %s", SDL_GetError());
+    
     return 0;
 }
 
@@ -419,20 +515,6 @@ AluneGameView *imp_renderingView;
 }
 
 -(void) start {
-    for (int attempts = 0; attempts < 40 && VMManager::HasValidVM(); attempts++) {
-        [NSThread sleepForTimeInterval:50];
-    }
-    
-    NSLog(@"has valid vm: %d", VMManager::HasValidVM());
-    if (VMManager::HasValidVM()) {
-        std::thread([]() {
-            VMManager::SetState(VMState::Stopping);
-        }).detach();
-        
-        [NSThread sleepForTimeInterval:50];
-    }
-    NSLog(@"has valid vm: %d", VMManager::HasValidVM());
-    
     if (!VMManager::Internal::CPUThreadInitialize())
         VMManager::Internal::CPUThreadShutdown();
     
@@ -454,71 +536,25 @@ AluneGameView *imp_renderingView;
         boot_params.source_type = CDVD_SourceType::Iso;
     }
     
-    if (VMManager::Initialize(boot_params)) {
-        VMManager::SetState(VMState::Running);
-        
-        while (true) {
-            VMState state = VMManager::GetState();
-            if (state == VMState::Running)
-                VMManager::Execute();
-            else if (state == VMState::Shutdown || state == VMState::Stopping)
-                break;
-            else
-                usleep(250000);
-        }
-        
-        VMManager::Shutdown(false);
-    }
-    
-    VMManager::Internal::CPUThreadShutdown();
-    
-    /*
-    running.store(true);
-    thread = std::jthread([](std::stop_token token) {
-        if (!VMManager::Internal::CPUThreadInitialize())
-            VMManager::Internal::CPUThreadShutdown();
-        
-        std::filesystem::path documentDirectoryPath{EmuFolders::DataRoot};
-        std::filesystem::path isosPath{documentDirectoryPath / "isos"};
-        
-        std::filesystem::path gamePath{(isosPath / settings->GetStringValue("GameISO", "BootISO"))};
-        std::string extension{gamePath.extension().string()};
-        
-        std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-        
-        VMBootParameters boot_params{};
-        boot_params.fast_boot = true;
-        if (extension == ".elf") {
-            boot_params.elf_override = gamePath.string();
-            boot_params.source_type = CDVD_SourceType::NoDisc;
-        } else if (extension == ".iso") {
-            boot_params.filename = gamePath.string();
-            boot_params.source_type = CDVD_SourceType::Iso;
-        }
-        
-        if (!VMManager::Initialize(boot_params))
-            NSLog(@"Initialize failed");
-        
-        VMManager::SetState(VMState::Running);
-        
-        while (!token.stop_requested()) {
-            {
-                std::unique_lock lock(mutex);
-                cv.wait(lock, token, []() {
-                    return !paused.load();
-                });
-                
-                if (token.stop_requested())
+    std::thread([boot_params]() {
+        if (VMManager::Initialize(boot_params)) {
+            VMManager::SetState(VMState::Running);
+            
+            while (true) {
+                VMState state = VMManager::GetState();
+                if (state == VMState::Running)
+                    VMManager::Execute();
+                else if (state == VMState::Shutdown || state == VMState::Stopping)
                     break;
+                else
+                    usleep(250000);
             }
             
-            VMState state = VMManager::GetState();
-            if (state == VMState::Running)
-                VMManager::Execute();
+            VMManager::Shutdown(false);
+            
+            VMManager::Internal::CPUThreadShutdown();
         }
-    });
-    thread.detach();
-     */
+    }).detach();
 }
 
 -(void) stop {
@@ -535,5 +571,10 @@ AluneGameView *imp_renderingView;
 
 -(BOOL) isRunning {
     return VMManager::GetState() == VMState::Running;
+}
+
+
+-(BOOL) JITAvailable {
+    return DarwinMisc::IsJITAvailable();
 }
 @end

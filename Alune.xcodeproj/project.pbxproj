@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E61002582F993AD60018B720 /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E610F3AD2F9938920018B720 /* libCore.a */; };
+		E68E1CCF2F9FFC4C007E9A9A /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E610F3AD2F9938920018B720 /* libCore.a */; };
+		E68FE3622F9FE8B200F96251 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E68FE3612F9FE8B200F96251 /* GameController.framework */; };
 		E6F3400D2F9949A3005D3E68 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6F3400C2F9949A3005D3E68 /* AVKit.framework */; };
 		E6F3400F2F9949AB005D3E68 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6F3400E2F9949AB005D3E68 /* AVFAudio.framework */; };
 		E6F340112F9949B3005D3E68 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6F340102F9949B3005D3E68 /* AVFoundation.framework */; };
@@ -20,7 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		E61002592F993AD60018B720 /* PBXContainerItemProxy */ = {
+		E68E1CD02F9FFC4C007E9A9A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E610F3862F9937980018B720 /* Project object */;
 			proxyType = 1;
@@ -39,11 +40,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E63BEB062F9FDADA001A5CA8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		E610F38E2F9937980018B720 /* Alune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Alune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E610F3AD2F9938920018B720 /* libCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E68FE3612F9FE8B200F96251 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		E6F3400C2F9949A3005D3E68 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		E6F3400E2F9949AB005D3E68 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
 		E6F340102F9949B3005D3E68 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -89,6 +101,16 @@
 				Resources/tfx.metal,
 			);
 		};
+		E63BEB072F9FDADB001A5CA8 /* Exceptions for "Alune" folder in "Embed Frameworks" phase from "Alune" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				MoltenVK.xcframework = (CodeSignOnCopy, RemoveHeadersOnCopy, );
+			};
+			buildPhase = E63BEB062F9FDADA001A5CA8 /* Embed Frameworks */;
+			membershipExceptions = (
+				MoltenVK.xcframework,
+			);
+		};
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -97,6 +119,7 @@
 			exceptions = (
 				E610F3A02F9937990018B720 /* Exceptions for "Alune" folder in "Alune" target */,
 				E61013CC2F9946D80018B720 /* Exceptions for "Alune" folder in "Copy Bundle Resources" phase from "Alune" target */,
+				E63BEB072F9FDADB001A5CA8 /* Exceptions for "Alune" folder in "Embed Frameworks" phase from "Alune" target */,
 			);
 			path = Alune;
 			sourceTree = "<group>";
@@ -114,15 +137,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				E6F3401B2F9949DF005D3E68 /* CoreMedia.framework in Frameworks */,
+				E68FE3622F9FE8B200F96251 /* GameController.framework in Frameworks */,
 				E6F340192F9949D9005D3E68 /* CoreHaptics.framework in Frameworks */,
 				E6F340112F9949B3005D3E68 /* AVFoundation.framework in Frameworks */,
 				E6F340172F9949D3005D3E68 /* CoreMotion.framework in Frameworks */,
 				E6F340152F9949CB005D3E68 /* libbz2.tbd in Frameworks */,
 				E6F3401D2F9949EF005D3E68 /* AudioToolbox.framework in Frameworks */,
+				E68E1CCF2F9FFC4C007E9A9A /* libCore.a in Frameworks */,
 				E6F3400F2F9949AB005D3E68 /* AVFAudio.framework in Frameworks */,
 				E6F3400D2F9949A3005D3E68 /* AVKit.framework in Frameworks */,
 				E6F3401F2F9949F5005D3E68 /* CoreBluetooth.framework in Frameworks */,
-				E61002582F993AD60018B720 /* libCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +163,7 @@
 		E61002572F993AD60018B720 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E68FE3612F9FE8B200F96251 /* GameController.framework */,
 				E6F3401E2F9949F5005D3E68 /* CoreBluetooth.framework */,
 				E6F3401C2F9949EF005D3E68 /* AudioToolbox.framework */,
 				E6F3401A2F9949DF005D3E68 /* CoreMedia.framework */,
@@ -182,11 +207,12 @@
 				E610F38A2F9937980018B720 /* Sources */,
 				E610F38B2F9937980018B720 /* Frameworks */,
 				E610F38C2F9937980018B720 /* Resources */,
+				E63BEB062F9FDADA001A5CA8 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				E610025A2F993AD60018B720 /* PBXTargetDependency */,
+				E68E1CD12F9FFC4C007E9A9A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E610F3902F9937980018B720 /* Alune */,
@@ -286,10 +312,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		E610025A2F993AD60018B720 /* PBXTargetDependency */ = {
+		E68E1CD12F9FFC4C007E9A9A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E610F3AC2F9938920018B720 /* Core */;
-			targetProxy = E61002592F993AD60018B720 /* PBXContainerItemProxy */;
+			targetProxy = E68E1CD02F9FFC4C007E9A9A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -302,7 +328,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CODE_SIGN_ENTITLEMENTS = Alune/Alune.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = Z3ZEABYY6P;
 				GCC_C_LANGUAGE_STANDARD = gnu23;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -322,12 +348,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Core/PCSX2/third_party",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_MODULES = STDLIB;
 				MTL_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Core/PCSX2/pcsx2/GS/Renderers/Metal $(PROJECT_DIR)/Core/PCSX2/third_party/Headers";
+				MTL_LANGUAGE_REVISION = UseDeploymentTarget;
+				MTL_MATH_FP32_FUNCTIONS = UseLanguageDefault;
+				MTL_MATH_MODE = UseLanguageDefault;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.antique.Alune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -341,7 +369,7 @@
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -353,7 +381,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CODE_SIGN_ENTITLEMENTS = Alune/Alune.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = Z3ZEABYY6P;
 				GCC_C_LANGUAGE_STANDARD = gnu23;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -373,12 +401,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Core/PCSX2/third_party",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_MODULES = STDLIB;
 				MTL_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Core/PCSX2/pcsx2/GS/Renderers/Metal $(PROJECT_DIR)/Core/PCSX2/third_party/Headers";
+				MTL_LANGUAGE_REVISION = UseDeploymentTarget;
+				MTL_MATH_FP32_FUNCTIONS = UseLanguageDefault;
+				MTL_MATH_MODE = UseLanguageDefault;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.antique.Alune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -392,7 +422,7 @@
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -535,10 +565,16 @@
 					"$(PROJECT_DIR)/Core/PCSX2/pcsx2",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LIBRARY_SEARCH_PATHS = (
+				LIBRARY_SEARCH_PATHS = "";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Core/PCSX2/third_party",
+					"$(PROJECT_DIR)/Core/PCSX2/third_party/device",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Core/PCSX2/third_party/simulator",
+				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -575,10 +611,16 @@
 					"$(PROJECT_DIR)/Core/PCSX2/pcsx2",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LIBRARY_SEARCH_PATHS = (
+				LIBRARY_SEARCH_PATHS = "";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Core/PCSX2/third_party",
+					"$(PROJECT_DIR)/Core/PCSX2/third_party/device",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Core/PCSX2/third_party/simulator",
+				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

@@ -22,7 +22,7 @@ struct CellManager {
                         return
                     }
                     
-                    UserDefaults.standard.set(toggle.isOn, forKey: itemIdentifier.key)
+                    itemIdentifier.value = toggle.isOn
                     
                     guard let delegate: SettingDelegate = itemIdentifier.delegate else {
                         return
@@ -32,6 +32,7 @@ struct CellManager {
                 })
                 toggle.isEnabled = itemIdentifier.isEnabled
                 toggle.isOn = itemIdentifier.value
+                toggle.onTintColor = .tintColor
                 
                 cell.accessories = [
                     UICellAccessory.customView(configuration: UICellAccessory.CustomViewConfiguration(customView: toggle,
@@ -125,7 +126,7 @@ struct CellManager {
                         return
                     }
                     
-                    UserDefaults.standard.set(stepper.value, forKey: itemIdentifier.key)
+                    itemIdentifier.value = stepper.value
                     
                     guard let delegate: SettingDelegate = itemIdentifier.delegate else {
                         return

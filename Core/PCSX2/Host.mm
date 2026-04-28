@@ -21,9 +21,7 @@ extern std::jthread thread;
 extern MTKView *imp_renderingView;
 
 void Host::RequestShutdown() {
-    SDL_Event event;
-    event.type = SDL_EVENT_QUIT;
-    SDL_PushEvent(&event);
+    
 }
 
 void Host::RunOnMainThread(std::function<void()> func, bool wait) {
@@ -94,11 +92,11 @@ std::optional<WindowInfo> Host::AcquireRenderWindow(bool recreate_window) {
         
         MTKView *renderView = (__bridge MTKView *)wi.window_handle;
         
-        CGFloat nativeScale = renderView.contentScaleFactor;
+        CGFloat nativeScale = 1; // renderView.contentScaleFactor;
         wi.surface_width = static_cast<u32>(renderView.bounds.size.width * nativeScale);
         wi.surface_height = static_cast<u32>(renderView.bounds.size.height * nativeScale);
         wi.surface_scale = nativeScale;
-        wi.surface_refresh_rate = 60.0f;
+        wi.surface_refresh_rate = 60.0;
     });
     
     Console.WriteLn("Host::AcquireRenderWindow: Returning WindowInfo (Type=%d, "

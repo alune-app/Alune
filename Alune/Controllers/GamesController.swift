@@ -1,6 +1,7 @@
 import Core
 import GameController
 import UIKit
+import UniformTypeIdentifiers
 
 extension UIViewController {
     var iPhone: Bool {
@@ -30,6 +31,13 @@ class GamesController: UICollectionViewController {
     
     let fileManager: FileManager = FileManager.default
     
+    enum FileImportType : String {
+        case bios = "bios"
+        case isos = "isos"
+    }
+    
+    var fileImportType: FileImportType = .bios
+    
     var bridgeSwift: AluneBridgeSwift
     init(collectionViewLayout layout: UICollectionViewLayout, bridgeSwift: AluneBridgeSwift) {
         self.bridgeSwift = bridgeSwift
@@ -48,13 +56,32 @@ class GamesController: UICollectionViewController {
         if #available(iOS 26.0, *) {
             navigationItem.largeTitle = "Games"
         }
-        navigationItem.title = "Games"
         navigationItem.largeTitleDisplayMode = .always
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), menu: UIMenu(preferredElementSize: .medium,
+                                                                                                             children: [
+            UIAction(title: "BIOS", image: UIImage(systemName: "arrow.down.document.fill")) { action in
+                self.fileImportType = .bios
+                
+                let documentPickerController: UIDocumentPickerViewController = UIDocumentPickerViewController(forOpeningContentTypes: [.item],
+                                                                                                              asCopy: true)
+                documentPickerController.delegate = self
+                self.present(documentPickerController, animated: true)
+            },
+            UIAction(title: "DISC", image: UIImage(systemName: "opticaldisc.fill")) { action in
+                self.fileImportType = .isos
+                
+                let documentPickerController: UIDocumentPickerViewController = UIDocumentPickerViewController(forOpeningContentTypes: [.item],
+                                                                                                              asCopy: true)
+                documentPickerController.delegate = self
+                documentPickerController.allowsMultipleSelection = true
+                self.present(documentPickerController, animated: true)
+            }
+        ]))
         navigationItem.style = .browser
+        navigationItem.title = "Games"
         view.backgroundColor = .systemBackground
         
         collectionView.alwaysBounceVertical = true
-        collectionView.backgroundColor = .clear
         collectionView.refreshControl = UIRefreshControl(
             frame: .zero,
             primaryAction: UIAction { action in
@@ -99,20 +126,6 @@ class GamesController: UICollectionViewController {
         Task {
             await populate()
         }
-        
-        if let documentDirectoryURL: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let biosDirectoryURL: URL = documentDirectoryURL.appendingPathComponent("bios")
-            
-            do {
-                let contents: [URL] = try FileManager.default.contentsOfDirectory(at: biosDirectoryURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
-                let binFileURLs: [URL] = contents.filter { content in content.pathExtension.lowercased() == "bin" }
-                if let binFileURL: URL = binFileURLs.first {
-                    bridgeSwift.insert(bios: binFileURL)
-                }
-            } catch {
-                print(#file, #function, #line, error, error.localizedDescription)
-            }
-        }
     }
     
     var gamesManager: GamesManager = GamesManager()
@@ -145,5 +158,33 @@ class GamesController: UICollectionViewController {
         let viewController: AluneController = AluneController(bridgeSwift: bridgeSwift, game: game)
         viewController.modalPresentationStyle = .fullScreen
         present(viewController, animated: true)
+    }
+}
+
+extension GamesController : UIDocumentPickerDelegate, UINavigationControllerDelegate {
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        controller.dismiss(animated: true)
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        if let documentDirectoryURL: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+            Task {
+                await urls.asyncForEach { url in
+                    let destinationURL: URL = documentDirectoryURL
+                        .appending(component: fileImportType.rawValue)
+                        .appending(component: url.lastPathComponent)
+                    
+                    do {
+                        try self.fileManager.copyItem(at: url, to: destinationURL)
+                    } catch {
+                        print(#file, #function, #line, error, error.localizedDescription)
+                    }
+                }
+                
+                await populate()
+            }
+        }
+        
+        controller.dismiss(animated: true)
     }
 }

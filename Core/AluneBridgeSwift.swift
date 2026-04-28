@@ -129,8 +129,46 @@ public class AluneBridgeSwift {
         bridge.running()
     }
     
+    
+    public var jitAvailable: Bool {
+        bridge.jitAvailable()
+    }
+    
+    
     // MARK: Settings
-    public func updateSettings() {
-        bridge.updateSettings()
+    public func getBoolSetting(for section: String, key: String) -> Bool {
+        bridge.getBoolSetting(section: section, key: key)
+    }
+    
+    public func setBoolSetting(for section: String, key: String, value: Bool) {
+        bridge.setBoolSetting(section: section, key: key, value: value)
+    }
+    
+    public func getDoubleSetting(for section: String, key: String) -> Double {
+        bridge.getDoubleSetting(section: section, key: key)
+    }
+    
+    public func setDoubleSetting(for section: String, key: String, value: Double) {
+        bridge.setDoubleSetting(section: section, key: key, value: value)
+    }
+    
+    public func getIntSetting(for section: String, key: String) -> Int {
+        bridge.getIntSetting(section: section, key: key)
+    }
+    
+    public func setIntSetting(for section: String, key: String, value: Int) {
+        bridge.setIntSetting(section: section, key: key, value: value)
+    }
+    
+    public func getStringSetting(for section: String, key: String) -> String {
+        bridge.getStringSetting(section: section, key: key)
+    }
+    
+    public func setStringSetting(for section: String, key: String, value: String) {
+        bridge.setStringSetting(section: section, key: key, value: value)
+    }
+    
+    public func resetSettings() {
+        bridge.resetSettings()
     }
 }

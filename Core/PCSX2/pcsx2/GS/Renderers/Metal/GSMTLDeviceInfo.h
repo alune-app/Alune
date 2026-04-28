@@ -21,6 +21,7 @@ struct GSMTLDevice
 		Metal21, ///< Metal 2.1 (macOS 10.14, iOS 12)
 		Metal22, ///< Metal 2.2 (macOS 10.15, iOS 13)
 		Metal23, ///< Metal 2.3 (macOS 11, iOS 14)
+		Metal40
 	};
 
 	struct Features

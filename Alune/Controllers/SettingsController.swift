@@ -2,7 +2,8 @@ import Core
 import UIKit
 
 enum SettingsHeaders : String, CaseIterable {
-    case core = "Core",
+    case jit = "JIT",
+         core = "Core",
          cpu = "CPU",
          cpuRecompiler = "CPU Recompiler",
          gs = "GS",
@@ -11,6 +12,8 @@ enum SettingsHeaders : String, CaseIterable {
     
     var header: SettingHeader {
         switch self {
+        case .jit:
+            SettingHeader(text: rawValue, secondaryText: "Just-In-Time Compilation")
         case .core, .cpu, .cpuRecompiler, .speedHacks:
             SettingHeader(text: rawValue)
         case .gs:
@@ -24,14 +27,15 @@ enum SettingsHeaders : String, CaseIterable {
 }
 
 enum SettingsItems : String, CaseIterable {
+    case jit = "alune.v1.0.1.JIT"
+    
     // Core
     case enableThreadPinning = "alune.v1.0.1.enableThreadPinning"
     
     // CPU
     case extraMemory = "alune.v1.0.1.extraMemory",
          coreType = "alune.v1.0.1.coreType",
-         useARM64Dynarec = "alune.v1.0.1.useARM64Dynarec",
-         extraSparseMemory = "alune.v1.0.1.extraSparseMemory"
+         useARM64Dynarec = "alune.v1.0.1.useARM64Dynarec"
     
     // CPU Recompiler
     case enableEE = "alune.v1.0.1.enableEE",
@@ -45,11 +49,14 @@ enum SettingsItems : String, CaseIterable {
     case enableVSync = "alune.v1.0.1.enableVSync",
          disableMailboxPresentation = "alune.v1.0.1.disableMailboxPresentation",
          vsyncQueueSize = "alune.v1.0.1.vsyncQueueSize",
-         aspectRatio = "alune.v1.0.1.aspectRatio"
+         aspectRatio = "alune.v1.0.1.aspectRatio",
+         renderer = "alune.v1.0.1.renderer"
     
     
     // Speed Hacks
-    case fastCDVD = "alune.v1.0.1.fastCDVD",
+    case eeCycleRate = "alune.v1.0.1.eeCycleRate",
+         eeCycleSkip = "alune.v1.0.1.eeCycleSkip",
+         fastCDVD = "alune.v1.0.1.fastCDVD",
          waitLoop = "alune.v1.0.1.waitLoop",
          vuFlagHack = "alune.v1.0.1.vuFlagHack",
          vuThread = "alune.v1.0.1.vuThread",
@@ -59,8 +66,102 @@ enum SettingsItems : String, CaseIterable {
     // Destructive
     case resetSettings = "alune.v1.0.1.resetSettings"
     
+    var section: String {
+        switch self {
+        case .jit:
+            "JIT"
+        case .enableThreadPinning:
+            "EmuCore"
+        case .extraMemory,
+                .coreType,
+                .useARM64Dynarec:
+            "EmuCore/CPU"
+        case .enableEE,
+                .enableIOP,
+                .enableEECache,
+                .enableVU0,
+                .enableVU1,
+                .enableFastMem:
+            "EmuCore/CPU/Recompiler"
+        case .enableVSync,
+                .disableMailboxPresentation,
+                .vsyncQueueSize,
+                .aspectRatio,
+                .renderer:
+            "EmuCore/GS"
+        case .eeCycleRate,
+                .eeCycleSkip,
+                .fastCDVD,
+                .waitLoop,
+                .vuFlagHack,
+                .vuThread,
+                .vu1Instant,
+                .mtvu:
+            "EmuCore/Speedhacks"
+        case .resetSettings:
+            ""
+        }
+    }
+    
+    var key: String {
+        switch self {
+        case .enableThreadPinning:
+            "EnableThreadPinning"
+        case .extraMemory:
+            "ExtraMemory"
+        case .coreType:
+            "CoreType"
+        case .useARM64Dynarec:
+            "UseArm64Dynarec"
+        case .enableEE:
+            "EnableEE"
+        case .enableIOP:
+            "EnableIOP"
+        case .enableEECache:
+            "EnableEECache"
+        case .enableVU0:
+            "EnableVU0"
+        case .enableVU1:
+            "EnableVU1"
+        case .enableFastMem:
+            "EnableFastmem"
+        case .enableVSync:
+            "VsyncEnable"
+        case .disableMailboxPresentation:
+            "DisableMailboxPresentation"
+        case .vsyncQueueSize:
+            "VsyncQueueSize"
+        case .aspectRatio:
+            "AspectRatio"
+        case .renderer:
+            "Renderer"
+        case .eeCycleRate:
+            "EECycleRate"
+        case .eeCycleSkip:
+            "EECycleSkip"
+        case .fastCDVD:
+            "fastCDVD"
+        case .waitLoop:
+            "WaitLoop"
+        case .vuFlagHack:
+            "vuFlagHack"
+        case .vuThread:
+            "vuThread"
+        case .vu1Instant:
+            "vu1Instant"
+        case .mtvu:
+            "MTVU"
+        case .jit,
+                .resetSettings:
+            ""
+        }
+    }
+    
     var title: String {
         switch self {
+        case .jit:
+            "STATUS"
+            
         case .enableThreadPinning:
             "Enable Thread Pinning"
             
@@ -70,8 +171,6 @@ enum SettingsItems : String, CaseIterable {
             "Core Type"
         case .useARM64Dynarec:
             "Use ARM64 Dynarec"
-        case .extraSparseMemory:
-            "Extra Sparse Memory"
             
         case .enableEE:
             "Enable EE"
@@ -94,7 +193,13 @@ enum SettingsItems : String, CaseIterable {
             "VSync Queue Size"
         case .aspectRatio:
             "Aspect Ratio"
+        case .renderer:
+            "Renderer"
             
+        case .eeCycleRate:
+            "EE Cycle Rate"
+        case .eeCycleSkip:
+            "EE Cycle Skip"
         case .fastCDVD:
             "Fast CDVD"
         case .waitLoop:
@@ -115,6 +220,9 @@ enum SettingsItems : String, CaseIterable {
     
     var secondaryTitle: String? {
         switch self {
+        case .jit:
+            ""
+            
         case .enableThreadPinning:
             ""
             
@@ -124,8 +232,6 @@ enum SettingsItems : String, CaseIterable {
             ""
         case .useARM64Dynarec:
             "Requires JIT"
-        case .extraSparseMemory:
-            ""
             
         case .enableEE:
             "Requires JIT"
@@ -148,7 +254,13 @@ enum SettingsItems : String, CaseIterable {
             ""
         case .aspectRatio:
             ""
+        case .renderer:
+            ""
             
+        case .eeCycleRate:
+            ""
+        case .eeCycleSkip:
+            ""
         case .fastCDVD:
             ""
         case .waitLoop:
@@ -169,6 +281,9 @@ enum SettingsItems : String, CaseIterable {
     
     var details: String? {
         switch self {
+        case .jit:
+            ""
+            
         case .enableThreadPinning:
             ""
             
@@ -177,8 +292,6 @@ enum SettingsItems : String, CaseIterable {
         case .coreType:
             ""
         case .useARM64Dynarec:
-            ""
-        case .extraSparseMemory:
             ""
             
         case .enableEE:
@@ -202,7 +315,13 @@ enum SettingsItems : String, CaseIterable {
             ""
         case .aspectRatio:
             ""
+        case .renderer:
+            ""
             
+        case .eeCycleRate:
+            ""
+        case .eeCycleSkip:
+            ""
         case .fastCDVD:
             ""
         case .waitLoop:
@@ -221,21 +340,33 @@ enum SettingsItems : String, CaseIterable {
         }
     }
     
-    func setting(_ delegate: SettingDelegate? = nil) -> BaseSetting {
+    func setting(bridgeSwift: AluneBridgeSwift, _ delegate: SettingDelegate? = nil) -> BaseSetting {
         switch self {
+        case .jit:
+            TapSetting(key: key,
+                       section: section,
+                       title: title.replacingOccurrences(of: "STATUS", with: bridgeSwift.jitAvailable ? "Activated" : "Tap to Activate"),
+                       details: details,
+                       color: bridgeSwift.jitAvailable ? .systemGreen : .systemOrange,
+                       handler: { controller in
+                
+            }, delegate: delegate)
+            
         case .enableThreadPinning,
-                .extraMemory, .useARM64Dynarec, .extraSparseMemory,
+                .extraMemory, .useARM64Dynarec,
                 .enableEE, .enableIOP, .enableEECache, .enableVU0, .enableVU1, .enableFastMem,
                 .enableVSync, .disableMailboxPresentation,
                 .fastCDVD, .waitLoop, .vuFlagHack, .vuThread, .vu1Instant, .mtvu:
-            BoolSetting(key: rawValue,
+            BoolSetting(key: key,
+                        section: section,
                         title: title,
                         details: details,
                         secondaryTitle: secondaryTitle,
-                        value: UserDefaults.standard.bool(forKey: rawValue),
+                        value: bridgeSwift.getBoolSetting(for: section, key: key),
                         delegate: delegate)
         case .coreType:
-            SelectionSetting(key: rawValue,
+            SelectionSetting(key: key,
+                             section: section,
                              title: title,
                              details: details,
                              secondaryTitle: secondaryTitle,
@@ -244,34 +375,60 @@ enum SettingsItems : String, CaseIterable {
                                 "Interpreter" : 1,
                                 "ARM64 Dynarec" : 2
                              ],
-                             selectedValue: UserDefaults.standard.value(forKey: rawValue),
+                             selectedValue: bridgeSwift.getIntSetting(for: section, key: key),
                              action: {},
                              delegate: delegate)
         case .vsyncQueueSize:
-            StepperSetting(key: rawValue,
+            StepperSetting(key: key,
+                           section: section,
                            title: title,
                            details: details,
                            min: 2,
                            max: 8,
-                           value: UserDefaults.standard.double(forKey: rawValue),
+                           value: bridgeSwift.getDoubleSetting(for: section, key: key),
+                           delegate: delegate)
+        case .eeCycleRate,
+                .eeCycleSkip:
+            StepperSetting(key: key,
+                           section: section,
+                           title: title,
+                           details: details,
+                           min: -2,
+                           max: 2,
+                           value: bridgeSwift.getDoubleSetting(for: section, key: key),
                            delegate: delegate)
         case .aspectRatio:
-            SelectionSetting(key: rawValue,
+            SelectionSetting(key: key,
+                             section: section,
                              title: title,
                              details: details,
                              secondaryTitle: secondaryTitle,
                              values: [
-                                "Stretch" : 0,
-                                "Auto 4:3/3:2" : 1,
-                                "4:3" : 2,
-                                "16:9" : 3,
-                                "10:7" : 4
+                                "Stretch" : "Stretch",
+                                "Auto 4:3/3:2" : "Auto 4:3/3:2",
+                                "4:3" : "4:3",
+                                "16:9" : "16:9",
+                                "10:7" : "10:7"
                              ],
-                             selectedValue: UserDefaults.standard.value(forKey: rawValue),
+                             selectedValue: bridgeSwift.getStringSetting(for: section, key: key),
+                             action: {},
+                             delegate: delegate)
+        case .renderer:
+            SelectionSetting(key: key,
+                             section: section,
+                             title: title,
+                             details: details,
+                             secondaryTitle: secondaryTitle,
+                             values: [
+                                "Metal" : 17,
+                                "Vulkan" : 14
+                             ],
+                             selectedValue: bridgeSwift.getIntSetting(for: section, key: key),
                              action: {},
                              delegate: delegate)
         case .resetSettings:
-            TapSetting(key: rawValue,
+            TapSetting(key: key,
+                       section: section,
                        title: title,
                        details: details,
                        color: .systemRed,
@@ -280,44 +437,7 @@ enum SettingsItems : String, CaseIterable {
                     return
                 }
                 
-                func configureDefaultUserDefaults() {
-                    let defaults: [String : Any] = [
-                        // CPU
-                        "extraMemory" : false,
-                        "coreType" : 0,
-                        "useARM64Dynarec" : false,
-                        "extraSparseMemory" : true,
-                        
-                        // CPU Recompiler
-                        "enableEE" : false,
-                        "enableIOP" : false,
-                        "enableEECache" : false,
-                        "enableVU0" : false,
-                        "enableVU1" : false,
-                        "enableFastMem" : true,
-                        
-                        // GS
-                        "enableVSync" : false,
-                        "disableMailboxPresentation" : false,
-                        "vsyncQueueSize" : 2,
-                        "aspectRatio" : 2,
-                        
-                        // Speed Hacks
-                        "fastCDVD" : false,
-                        "waitLoop" : false,
-                        "vuFlagHack" : false,
-                        "vuThread" : false,
-                        "vu1Instant" : false,
-                        "mtvu" : false
-                        
-                    ]
-                    
-                    defaults.forEach { key, value in
-                        UserDefaults.standard.set(value, forKey: "alune.v1.0.1.\(key)")
-                    }
-                }
-                
-                configureDefaultUserDefaults()
+                bridgeSwift.resetSettings()
                 Task { @MainActor in
                     controller.populate()
                 }
@@ -327,16 +447,18 @@ enum SettingsItems : String, CaseIterable {
     
     static func settings(_ header: SettingsHeaders) -> [SettingsItems] {
         switch header {
+        case .jit:
+            [.jit]
         case .core:
             [.enableThreadPinning]
         case .cpu:
-            [.extraMemory, .useARM64Dynarec, .coreType, .extraSparseMemory]
+            [.extraMemory, .useARM64Dynarec, .coreType]
         case .cpuRecompiler:
             [.enableEE, .enableIOP, .enableEECache, .enableVU0, .enableVU1, .enableFastMem]
         case .gs:
-            [.enableVSync, .disableMailboxPresentation, .vsyncQueueSize, .aspectRatio]
+            [.enableVSync, .disableMailboxPresentation, .vsyncQueueSize, .aspectRatio, .renderer]
         case .speedHacks:
-            [.fastCDVD, .waitLoop, .vuFlagHack, .vuThread, .vu1Instant, .mtvu]
+            [.eeCycleRate, .eeCycleSkip, .fastCDVD, .waitLoop, .vuFlagHack, .vuThread, .vu1Instant, .mtvu]
         case .destructive:
             [.resetSettings]
         }
@@ -430,7 +552,7 @@ class SettingsController : UIViewController, UICollectionViewDelegate {
                     }
                     
                     partialResult.append(.init(title: element.key, state: state, handler: { _ in
-                        UserDefaults.standard.set(element.value, forKey: itemIdentifier.key)
+                        itemIdentifier.selectedValue = element.value
                         if let delegate = itemIdentifier.delegate {
                             delegate.didChangeSetting(at: indexPath)
                         }
@@ -444,7 +566,7 @@ class SettingsController : UIViewController, UICollectionViewDelegate {
                     }
                     
                     partialResult.append(.init(title: element.key, state: state, handler: { _ in
-                        UserDefaults.standard.set(element.value, forKey: itemIdentifier.key)
+                        itemIdentifier.selectedValue = element.value
                         if let delegate = itemIdentifier.delegate {
                             delegate.didChangeSetting(at: indexPath)
                         }
@@ -512,7 +634,7 @@ class SettingsController : UIViewController, UICollectionViewDelegate {
         snapshot = .init()
         snapshot.appendSections(SettingsHeaders.allCases)
         snapshot.sectionIdentifiers.forEach { header in
-            snapshot.appendItems(SettingsItems.settings(header).map { $0.setting(self) }, toSection: header)
+            snapshot.appendItems(SettingsItems.settings(header).map { $0.setting(bridgeSwift: bridgeSwift, self) }, toSection: header)
         }
         
         Task {
@@ -574,8 +696,6 @@ class SettingsController : UIViewController, UICollectionViewDelegate {
 
 extension SettingsController : @MainActor SettingDelegate {
     func didChangeSetting(at indexPath: IndexPath) {
-        bridgeSwift.updateSettings()
-        
         guard let sectionIdentifier = dataSource.sectionIdentifier(for: indexPath.section) else {
             return
         }
@@ -585,15 +705,23 @@ extension SettingsController : @MainActor SettingDelegate {
         
         switch item {
         case let boolSetting as BoolSetting:
-            boolSetting.value = UserDefaults.standard.bool(forKey: boolSetting.key)
+            bridgeSwift.setBoolSetting(for: boolSetting.section, key: boolSetting.key, value: boolSetting.value)
+            boolSetting.value = bridgeSwift.getBoolSetting(for: boolSetting.section, key: boolSetting.key)
         case let inputNumberSetting as InputNumberSetting:
             inputNumberSetting.value = UserDefaults.standard.double(forKey: inputNumberSetting.key)
         case let inputStringSetting as InputStringSetting:
             inputStringSetting.value = UserDefaults.standard.string(forKey: inputStringSetting.key)
         case let stepperSetting as StepperSetting:
-            stepperSetting.value = UserDefaults.standard.double(forKey: stepperSetting.key)
+            bridgeSwift.setDoubleSetting(for: stepperSetting.section, key: stepperSetting.key, value: stepperSetting.value)
+            stepperSetting.value = bridgeSwift.getDoubleSetting(for: stepperSetting.section, key: stepperSetting.key)
         case let selectionSetting as SelectionSetting:
-            selectionSetting.selectedValue = UserDefaults.standard.value(forKey: selectionSetting.key)
+            if let selectedValue = selectionSetting.selectedValue as? Int {
+                bridgeSwift.setIntSetting(for: selectionSetting.section, key: selectionSetting.key, value: selectedValue)
+                selectionSetting.selectedValue = bridgeSwift.getIntSetting(for: selectionSetting.section, key: selectionSetting.key)
+            } else if let selectedValue = selectionSetting.selectedValue as? String {
+                bridgeSwift.setStringSetting(for: selectionSetting.section, key: selectionSetting.key, value: selectedValue)
+                selectionSetting.selectedValue = bridgeSwift.getStringSetting(for: selectionSetting.section, key: selectionSetting.key)
+            }
         default:
             break
         }

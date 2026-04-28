@@ -1,8 +1,8 @@
 import Core
-import GameController
 import UIKit
 
 class AluneController : UIViewController {
+    var containerView: UIView? = nil
     var imageView: AluneGameView? = nil
     
     var visualEffectView: UIVisualEffectView? = nil
@@ -49,11 +49,21 @@ class AluneController : UIViewController {
         
         let bridgeSwift: AluneBridgeSwift = bridgeSwift
         
+        containerView = UIView()
+        guard let containerView else {
+            return
+        }
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(containerView)
+        
         imageView = bridgeSwift.renderingView()
         guard let imageView else {
             return
         }
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = .secondarySystemBackground
+        imageView.framebufferOnly = true
+        imageView.preferredFramesPerSecond = 60
         if #available(iOS 26, *) {
             imageView.clipsToBounds = true
             imageView.cornerConfiguration = .corners(radius: .fixed(16.0))
@@ -62,7 +72,11 @@ class AluneController : UIViewController {
             imageView.layer.cornerCurve = .continuous
             imageView.layer.cornerRadius = 16.0
         }
-        view.addSubview(imageView)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            containerView.addSubview(imageView)
+        } else {
+            view.addSubview(imageView)
+        }
         
         let settingsConfiguration: UIButton.Configuration = .configuration(.medium, .capsule, UIImage(systemName: "ellipsis"), .medium)
         settingsButton = .button(with: settingsConfiguration,
@@ -353,7 +367,6 @@ class AluneController : UIViewController {
                 rightButton.leadingAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.trailingAnchor),
                 rightButton.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.topAnchor),
                 
-                
                 leftThumbstickView.topAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor),
                 leftThumbstickView.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.leadingAnchor),
                 leftThumbstickView.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.bottomAnchor),
@@ -393,11 +406,15 @@ class AluneController : UIViewController {
             constraints.landscape.append(contentsOf: [
                 imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,
                                                constant: 20.0),
-                imageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                imageView.bottomAnchor.constraint(equalTo: settingsButton.safeAreaLayoutGuide.topAnchor,
                                                   constant: -20.0),
                 imageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
                 imageView.widthAnchor.constraint(equalTo: imageView.safeAreaLayoutGuide.heightAnchor,
                                                  multiplier: 4.0 / 3.0),
+                
+                settingsButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                       constant: -20.0),
+                settingsButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
                 
                 startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
                                                     constant: -20.0),
@@ -477,11 +494,194 @@ class AluneController : UIViewController {
                 r2Button.widthAnchor.constraint(equalTo: r2Button.safeAreaLayoutGuide.heightAnchor,
                                                 multiplier: 3 / 2)
             ])
+        } else {
+            constraints.portrait.append(contentsOf: [
+                containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+                containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+                containerView.bottomAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.topAnchor, constant: -20),
+                containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+                
+                imageView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                imageView.centerYAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerYAnchor),
+                imageView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor, multiplier: 2 / 3),
+                imageView.heightAnchor.constraint(equalTo: imageView.safeAreaLayoutGuide.widthAnchor,
+                                                  multiplier: 3.0 / 4.0),
+                
+                settingsButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                       constant: -20.0),
+                settingsButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                
+                selectButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                     constant: -20.0),
+                selectButton.trailingAnchor.constraint(equalTo: settingsButton.safeAreaLayoutGuide.leadingAnchor,
+                                                       constant: -20.0),
+                
+                startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                    constant: -20.0),
+                startButton.leadingAnchor.constraint(equalTo: settingsButton.safeAreaLayoutGuide.trailingAnchor,
+                                                     constant: 20.0),
+                
+                crossButton.bottomAnchor.constraint(equalTo: startButton.safeAreaLayoutGuide.topAnchor),
+                crossButton.trailingAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                circleButton.bottomAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.topAnchor),
+                circleButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                                                       constant: -20),
+                
+                triangleButton.bottomAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.topAnchor),
+                triangleButton.trailingAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                squareButton.bottomAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.topAnchor),
+                squareButton.trailingAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                rightThumbstickView.topAnchor.constraint(equalTo: triangleButton.safeAreaLayoutGuide.topAnchor),
+                rightThumbstickView.leadingAnchor.constraint(equalTo: squareButton.safeAreaLayoutGuide.leadingAnchor),
+                rightThumbstickView.bottomAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.bottomAnchor),
+                rightThumbstickView.trailingAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.trailingAnchor),
+                
+                upButton.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.trailingAnchor),
+                upButton.bottomAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.topAnchor),
+                
+                leftButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                                                    constant: 20),
+                leftButton.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.topAnchor),
+                
+                downButton.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.trailingAnchor),
+                downButton.bottomAnchor.constraint(equalTo: selectButton.safeAreaLayoutGuide.topAnchor),
+                
+                rightButton.leadingAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.trailingAnchor),
+                rightButton.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.topAnchor),
+                
+                leftThumbstickView.topAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor),
+                leftThumbstickView.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.leadingAnchor),
+                leftThumbstickView.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.bottomAnchor),
+                leftThumbstickView.trailingAnchor.constraint(equalTo: rightButton.safeAreaLayoutGuide.trailingAnchor),
+                
+                l1Button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                                                  constant: 20),
+                l1Button.bottomAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor,
+                                                 constant: -20),
+                //l1Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                l1Button.widthAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                l2Button.leadingAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.trailingAnchor,
+                                                  constant: 20),
+                l2Button.centerYAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.centerYAnchor),
+                //l2Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                l2Button.widthAnchor.constraint(equalTo: l2Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                r1Button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                                                   constant: -20),
+                r1Button.bottomAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor,
+                                                 constant: -20),
+                //r1Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                r1Button.widthAnchor.constraint(equalTo: r1Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                r2Button.trailingAnchor.constraint(equalTo: r1Button.safeAreaLayoutGuide.leadingAnchor,
+                                                   constant: -20),
+                r2Button.centerYAnchor.constraint(equalTo: r1Button.safeAreaLayoutGuide.centerYAnchor),
+                //r2Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                r2Button.widthAnchor.constraint(equalTo: r2Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2)
+            ])
+            
+            constraints.landscape.append(contentsOf: [
+                containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+                containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+                containerView.bottomAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.topAnchor, constant: -20),
+                containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+                
+                imageView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                imageView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor,
+                                               constant: 20),
+                imageView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor,
+                                                  constant: -20),
+                imageView.widthAnchor.constraint(equalTo: imageView.safeAreaLayoutGuide.heightAnchor,
+                                                 multiplier: 4.0 / 3.0),
+                
+                crossButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                    constant: -20),
+                crossButton.trailingAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                circleButton.bottomAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.topAnchor),
+                circleButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                                                       constant: -20),
+                
+                triangleButton.bottomAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.topAnchor),
+                triangleButton.trailingAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                squareButton.bottomAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.topAnchor),
+                squareButton.trailingAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                rightThumbstickView.topAnchor.constraint(equalTo: triangleButton.safeAreaLayoutGuide.topAnchor),
+                rightThumbstickView.leadingAnchor.constraint(equalTo: squareButton.safeAreaLayoutGuide.leadingAnchor),
+                rightThumbstickView.bottomAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.bottomAnchor),
+                rightThumbstickView.trailingAnchor.constraint(equalTo: circleButton.safeAreaLayoutGuide.trailingAnchor),
+                
+                upButton.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.trailingAnchor),
+                upButton.bottomAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.topAnchor),
+                
+                leftButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                                                    constant: 20),
+                leftButton.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.topAnchor),
+                
+                downButton.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.trailingAnchor),
+                downButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                   constant: -20),
+                
+                rightButton.leadingAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.trailingAnchor),
+                rightButton.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.topAnchor),
+                
+                leftThumbstickView.topAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor),
+                leftThumbstickView.leadingAnchor.constraint(equalTo: leftButton.safeAreaLayoutGuide.leadingAnchor),
+                leftThumbstickView.bottomAnchor.constraint(equalTo: downButton.safeAreaLayoutGuide.bottomAnchor),
+                leftThumbstickView.trailingAnchor.constraint(equalTo: rightButton.safeAreaLayoutGuide.trailingAnchor),
+                
+                l1Button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                                                  constant: 20),
+                l1Button.bottomAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor,
+                                                 constant: -20),
+                //l1Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                l1Button.widthAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                l2Button.leadingAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.trailingAnchor,
+                                                  constant: 20),
+                l2Button.centerYAnchor.constraint(equalTo: l1Button.safeAreaLayoutGuide.centerYAnchor),
+                //l2Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                l2Button.widthAnchor.constraint(equalTo: l2Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                r1Button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                                                   constant: -20),
+                r1Button.bottomAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor,
+                                                 constant: -20),
+                //r1Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                r1Button.widthAnchor.constraint(equalTo: r1Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                r2Button.trailingAnchor.constraint(equalTo: r1Button.safeAreaLayoutGuide.leadingAnchor,
+                                                   constant: -20),
+                r2Button.centerYAnchor.constraint(equalTo: r1Button.safeAreaLayoutGuide.centerYAnchor),
+                //r2Button.heightAnchor.constraint(equalTo: crossButton.safeAreaLayoutGuide.heightAnchor),
+                r2Button.widthAnchor.constraint(equalTo: r2Button.safeAreaLayoutGuide.heightAnchor,
+                                                multiplier: 3 / 2),
+                
+                settingsButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                                       constant: -20.0),
+                settingsButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                
+                startButton.topAnchor.constraint(equalTo: triangleButton.safeAreaLayoutGuide.topAnchor),
+                startButton.trailingAnchor.constraint(equalTo: squareButton.safeAreaLayoutGuide.leadingAnchor),
+                
+                selectButton.topAnchor.constraint(equalTo: upButton.safeAreaLayoutGuide.topAnchor),
+                selectButton.leadingAnchor.constraint(equalTo: rightButton.safeAreaLayoutGuide.trailingAnchor)
+            ])
         }
         
-#if targetEnvironment(simulator)
-        view.addConstraints(constraints.portrait)
-#else
         switch interfaceOrientation() {
         case .portrait:
             view.addConstraints(constraints.portrait)
@@ -490,18 +690,11 @@ class AluneController : UIViewController {
         default:
             view.addConstraints(constraints.portrait)
         }
-#endif
     }
     
     override var prefersHomeIndicatorAutoHidden: Bool { true }
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         .portrait.union(.landscape)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        GCController.stopWirelessControllerDiscovery()
-        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -526,10 +719,7 @@ class AluneController : UIViewController {
         super.viewDidLayoutSubviews()
         if !bridgeSwift.running {
             _ = bridgeSwift.insert(disc: game.details.name.appending(".\(game.details.`extension`)"))
-            
-            Thread.detachNewThread {
-                self.bridgeSwift.start()
-            }
+            bridgeSwift.start()
         }
     }
 }

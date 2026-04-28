@@ -166,12 +166,12 @@ class Cell : UICollectionViewCell {
             return
         }
 
-        let artworkDirectoryURL: URL = documentDirectoryURL.appending(component: "artworks")
+        let artworkDirectoryURL: URL = documentDirectoryURL.appending(component: "covers")
         let imageURL: URL = artworkDirectoryURL.appending(component: "\(game.details.name.lowercased()).png")
         let fileExists = FileManager.default.fileExists(atPath: imageURL.path)
         hasCustomArtwork = fileExists
         if fileExists {
-            imageView.image = UIImage(contentsOfFile: imageURL.path())
+            imageView.image = UIImage(contentsOfFile: imageURL.path)
         } else {
             Task {
                 let formattedID: String = game.details.id
@@ -181,6 +181,12 @@ class Cell : UICollectionViewCell {
                 if let boxartURL: URL = URL(string: "https://raw.githubusercontent.com/xlenore/ps2-covers/main/covers/default/\(formattedID).jpg") {
                     let (data, _) = try await URLSession.shared.data(from: boxartURL)
                     imageView.image = UIImage(data: data)
+                    
+                    do {
+                        try data.write(to: imageURL)
+                    } catch {
+                        print(#file, #function, #line, error, error.localizedDescription)
+                    }
                 }
             }
         }
@@ -275,7 +281,7 @@ extension Cell: UIImagePickerControllerDelegate, UINavigationControllerDelegate 
             return
         }
 
-        let artworkDirectoryURL: URL = documentDirectoryURL.appending(component: "artworks")
+        let artworkDirectoryURL: URL = documentDirectoryURL.appending(component: "covers")
         let url: URL = artworkDirectoryURL.appending( component: "\(game.details.name.lowercased()).png")
         Task {
             if FileManager.default.fileExists(atPath: url.path) {

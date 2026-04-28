@@ -8,10 +8,12 @@ public actor SettingsKit {
     
     public func blank() -> BlankSetting {
         .init(key: "",
+              section: "",
               title: "")
     }
     
     public func bool(key: String,
+                     section: String,
                      title: String,
                      details: String? = nil,
                      secondaryTitle: String? = nil,
@@ -19,6 +21,7 @@ public actor SettingsKit {
                      value: Bool,
                      delegate: (any SettingDelegate)? = nil) -> BoolSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               secondaryTitle: secondaryTitle,
@@ -28,6 +31,7 @@ public actor SettingsKit {
     }
     
     public func inputNumber(key: String,
+                            section: String,
                             title: String,
                             details: String? = nil,
                             min: Double,
@@ -35,6 +39,7 @@ public actor SettingsKit {
                             value: Double,
                             delegate: (any SettingDelegate)? = nil) -> InputNumberSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               min: min,
@@ -44,6 +49,7 @@ public actor SettingsKit {
     }
     
     public func inputString(key: String,
+                            section: String,
                             title: String,
                             details: String? = nil,
                             placeholder: String? = nil,
@@ -51,6 +57,7 @@ public actor SettingsKit {
                             action: @escaping () -> Void,
                             delegate: (any SettingDelegate)? = nil) -> InputStringSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               placeholder: placeholder,
@@ -60,6 +67,7 @@ public actor SettingsKit {
     }
     
     public func segmented(key: String,
+                          section: String,
                           title: String,
                           details: String? = nil,
                           values: [String : Any],
@@ -67,6 +75,7 @@ public actor SettingsKit {
                           action: @escaping () -> Void,
                           delegate: (any SettingDelegate)? = nil) -> SelectionSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               values: values,
@@ -76,6 +85,7 @@ public actor SettingsKit {
     }
     
     public func selection(key: String,
+                          section: String,
                           title: String,
                           details: String? = nil,
                           values: [String : Any],
@@ -83,6 +93,7 @@ public actor SettingsKit {
                           action: @escaping () -> Void,
                           delegate: (any SettingDelegate)? = nil) -> SelectionSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               values: values,
@@ -92,6 +103,7 @@ public actor SettingsKit {
     }
     
     public func slider(key: String,
+                       section: String,
                        title: String,
                        details: String? = nil,
                        minImage: UIImage? = nil,
@@ -101,6 +113,7 @@ public actor SettingsKit {
                        value: Double,
                        delegate: (any SettingDelegate)? = nil) -> SliderSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               minImage: minImage,
@@ -112,6 +125,7 @@ public actor SettingsKit {
     }
     
     public func stepper(key: String,
+                        section: String,
                         title: String,
                         details: String? = nil,
                         min: Double,
@@ -119,6 +133,7 @@ public actor SettingsKit {
                         value: Double,
                         delegate: (any SettingDelegate)? = nil) -> StepperSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               min: min,
@@ -128,11 +143,13 @@ public actor SettingsKit {
     }
     
     public func tap(key: String,
+                    section: String,
                     title: String,
                     details: String? = nil,
                     handler: @escaping (UIViewController) -> Void,
                     delegate: (any SettingDelegate)? = nil) -> TapSetting {
         .init(key: key,
+              section: section,
               title: title,
               details: details,
               handler: handler,

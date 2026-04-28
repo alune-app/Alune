@@ -51,7 +51,15 @@ typedef NS_ENUM(NSUInteger, PS2ButtonPressState) {
 -(void) drag:(uint32_t)thumbstick point:(CGPoint)point slot:(uint8_t)slot NS_SWIFT_NAME(drag(thumbstick:point:slot:));
 
 // MARK: Settings
--(void) updateSettings;
+-(BOOL) getBoolSetting:(NSString *)section key:(NSString *)key NS_SWIFT_NAME(getBoolSetting(section:key:));
+-(void) setBoolSetting:(NSString *)section key:(NSString *)key value:(BOOL)value NS_SWIFT_NAME(setBoolSetting(section:key:value:));
+-(double) getDoubleSetting:(NSString *)section key:(NSString *)key NS_SWIFT_NAME(getDoubleSetting(section:key:));
+-(void) setDoubleSetting:(NSString *)section key:(NSString *)key value:(double)value NS_SWIFT_NAME(setDoubleSetting(section:key:value:));
+-(NSInteger) getIntSetting:(NSString *)section key:(NSString *)key NS_SWIFT_NAME(getIntSetting(section:key:));
+-(void) setIntSetting:(NSString *)section key:(NSString *)key value:(NSInteger)value NS_SWIFT_NAME(setIntSetting(section:key:value:));
+-(NSString *) getStringSetting:(NSString *)section key:(NSString *)key NS_SWIFT_NAME(getStringSetting(section:key:));
+-(void) setStringSetting:(NSString *)section key:(NSString *)key value:(NSString *)value NS_SWIFT_NAME(setStringSetting(section:key:value:));
+-(void) resetSettings;
 
 // MARK: Setup
 -(void) insertBIOS:(NSURL *)url NS_SWIFT_NAME(insert(bios:));
@@ -64,4 +72,6 @@ typedef NS_ENUM(NSUInteger, PS2ButtonPressState) {
 
 -(BOOL) isPaused NS_SWIFT_NAME(paused());
 -(BOOL) isRunning NS_SWIFT_NAME(running());
+
+-(BOOL) JITAvailable;
 @end
